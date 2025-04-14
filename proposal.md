@@ -12,7 +12,7 @@ This is a particle rain wallpaper maker! The goal of this is to use our old part
 3. Be able to download it as an MP4 to use as a computer background
 
 ## Challenges
-While I'm going t be building off the particle rain that we have done previously, and I know how to build a gradient within the code, I have to figure out how to make it user friendly so that the user can navigate with set options and also download the mp4. I need to research how to create a menu for each step, how to create a color picker, and how to generate a downloadable mp4 at minimum
+While I'm going t be building off the particle rain that we have done previously, and I know how to build a gradient within the code, I have to figure out how to make it user friendly so that the user can navigate with set options and also download the mp4. I need to research how to create a menu for each step, how to create a color picker, and how to generate a downloadable mp4 at minimum.
 
 
 ## Outcomes
