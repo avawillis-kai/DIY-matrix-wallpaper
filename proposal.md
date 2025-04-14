@@ -19,8 +19,11 @@ While I'm going t be building off the particle rain that we have done previously
 The ideal outcome is to create a pretty wallpaper generator that produces an MP4 for the user. The minimum viable outcome is to allow the user to put inputs for colors in HEX codes, and an input for shapes, while still generating at minumum a particle rain file.
 
 ## Milestones
-Week 1. Build particle rain code and cusotmizations
+Week 1. Build particle rain code and customizations
+
 Week 2. Build menus for colors and shapes
+
 Week 3. generate an MP4
+
 Week 4. Attempt to build a pretty menu style. If not, regular text input
 
