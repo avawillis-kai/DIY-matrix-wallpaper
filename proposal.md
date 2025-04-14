@@ -23,7 +23,7 @@ Week 1. Build particle rain code and customizations
 
 Week 2. Build menus for colors and shapes
 
-Week 3. generate an MP4
+Week 3. Generate an MP4
 
 Week 4. Attempt to build a pretty menu style. If not, regular text input
 
