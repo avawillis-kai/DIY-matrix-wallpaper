@@ -2,13 +2,15 @@ import tkinter as tk
 from tkinter import messagebox
 from tkcolorpicker import askcolor
 from PIL import Image, ImageDraw
+import imageio
 import random
 import math
+import numpy as np  # Ensure NumPy is imported
 
 # Global variables
 root = None
 selected_colors = []
-selected_shape = None  # Set it to None initially
+selected_shape = None
 
 def hex_to_rgb(hex_code):
     hex_code = hex_code.lstrip('#')
@@ -37,8 +39,8 @@ def blend_colors(color1, color2, ratio):
 def draw_star(draw, x, y, colors, brightness=1.0, size=16, is_large=True):
     thickness = 3
     star_size = size if is_large else size // 4
-    center_size = star_size // 3  # Making the center shape larger for prominence
-    border_size = center_size + 2  # Adding a slight border for the center
+    center_size = star_size // 3
+    border_size = center_size + 2
 
     def get_blended_color(ratio):
         if len(colors) == 1:
@@ -51,7 +53,7 @@ def draw_star(draw, x, y, colors, brightness=1.0, size=16, is_large=True):
                 colors[2],
                 ratio
             )
-        else:  # 4 colors
+        else:
             if ratio < 1/3:
                 return blend_colors(colors[0], colors[1], ratio * 3)
             elif ratio < 2/3:
@@ -59,7 +61,6 @@ def draw_star(draw, x, y, colors, brightness=1.0, size=16, is_large=True):
             else:
                 return blend_colors(colors[2], colors[3], (ratio - 2/3) * 3)
 
-    # Drawing the twinkling star arms
     for i in range(-star_size * 2, star_size * 2 + 1):
         ratio = abs(i) / (star_size * 2)
         blended_color = get_blended_color(ratio)
@@ -69,31 +70,25 @@ def draw_star(draw, x, y, colors, brightness=1.0, size=16, is_large=True):
             draw.point((x + i, y + j), fill=bright_color)
             draw.point((x + j, y + i), fill=bright_color)
 
-    # Now drawing the center shape with enhanced prominence
     center_color = tuple(min(255, int(c * brightness)) for c in colors[0])
     left_up = (x - center_size, y - center_size)
     right_down = (x + center_size, y + center_size)
+    border_color = (255, 255, 255)
 
-    # Optional: Add a border effect for the center shape
-    border_color = (255, 255, 255)  # White border (you can change to any color)
-
-    shape = selected_shape.get()
+    shape = selected_shape.get() if selected_shape else "Star"
     if shape == "Circle":
-        # Draw border first, then the center circle
-        draw.ellipse([left_up, right_down], outline=border_color, width=2)  # Border effect
+        draw.ellipse([left_up, right_down], outline=border_color, width=2)
         draw.ellipse([left_up, right_down], fill=center_color)
     elif shape == "Square":
-        # Draw border first, then the center square
-        draw.rectangle([left_up, right_down], outline=border_color, width=2)  # Border effect
+        draw.rectangle([left_up, right_down], outline=border_color, width=2)
         draw.rectangle([left_up, right_down], fill=center_color)
     elif shape == "Star":
-        # Draw the "X" shape for the center of the star
         draw.line((x - center_size, y - center_size, x + center_size, y + center_size), fill=border_color, width=2)
         draw.line((x + center_size, y - center_size, x - center_size, y + center_size), fill=border_color, width=2)
         draw.line((x - center_size, y - center_size, x + center_size, y + center_size), fill=center_color, width=2)
         draw.line((x + center_size, y - center_size, x - center_size, y + center_size), fill=center_color, width=2)
 
-def generate_star_gif(width=1920, height=1080, num_large_stars=100, num_small_stars=350, output_file="twinkling_stars.gif"):
+def generate_star_mp4(width=1920, height=1080, num_large_stars=100, num_small_stars=350, output_file="twinkling_stars.mp4"):
     if len(selected_colors) < 1 or len(selected_colors) > 4:
         messagebox.showerror("Error", "Please select between 1 and 4 colors.", icon='error')
         return
@@ -148,27 +143,23 @@ def generate_star_gif(width=1920, height=1080, num_large_stars=100, num_small_st
             if star[0] > width + size:
                 star[0] = -size
 
-        frames.append(image)
+        frames.append(np.array(image))  # Convert PIL Image to NumPy array
 
-    frames[0].save(
-        output_file,
-        save_all=True,
-        append_images=frames[1:],
-        duration=300,
-        loop=0
-    )
+    with imageio.get_writer(output_file, fps=10, codec='libx264', quality=8) as writer:
+        for frame in frames:
+            writer.append_data(frame)  # Append the NumPy array frame
 
-    messagebox.showinfo("Done", f"GIF saved as '{output_file}'", icon='info')
+    messagebox.showinfo("Done", f"MP4 video saved as '{output_file}'", icon='info')
     root.destroy()
 
 def create_gui():
     global root, selected_shape
     root = tk.Tk()
     root.tk_setPalette(background='#2E2E2E')
-    root.title("Twinkling Star GIF Generator")
+    root.title("Twinkling Star MP4 Generator")
     root.geometry("360x460")
 
-    selected_shape = tk.StringVar(value="Star")  # Moved here to after root window creation
+    selected_shape = tk.StringVar(value="Star")
 
     label = tk.Label(root, text="Choose 1 to 4 colors (center to outer arms):", fg="white", bg="#2E2E2E")
     label.pack(pady=10)
@@ -193,7 +184,7 @@ def create_gui():
     tk.Radiobutton(shape_frame, text="Circle", variable=selected_shape, value="Circle", bg="#2E2E2E", fg="white", selectcolor="#2E2E2E").pack(side=tk.LEFT)
     tk.Radiobutton(shape_frame, text="Square", variable=selected_shape, value="Square", bg="#2E2E2E", fg="white", selectcolor="#2E2E2E").pack(side=tk.LEFT)
 
-    btn_generate = tk.Button(root, text="Generate Twinkling GIF", command=generate_star_gif, bg="#333333", fg="white")
+    btn_generate = tk.Button(root, text="Generate Twinkling MP4", command=generate_star_mp4, bg="#333333", fg="white")
     btn_generate.pack(pady=20)
 
     root.mainloop()
